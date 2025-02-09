@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <h1 class="title">Weatherly 🌥</h1>
+    <br>
+
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather Forecast App 🌤</title>
+    <link rel="shortcut icon" href="img/icon.png" type="image/x-icon" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="styles/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Sono:wght@200;300;400;500;600;700;800&display=swap"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js"></script>
+    <script src="https://kit.fontawesome.com/74f0ec7ef2.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"></script>
+    <script src="./src/functions.js"></script>
+    <script src="src/index.js"></script>
+    <button id="locate-me" class="btn btn-warning rounded-pill position-absolute end-0 me-2" style="top: 50%; transform: translateY(-50%);">
+      Locate Me
+    </button>
+    
+    <script>
+      document.getElementById('locate-me').addEventListener('click', function() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(async function(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const apiKey = '2a2eaa51d996796495bf456e5b58adf4'; // Replace with your actual API key
+    
+            try {
+              const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`);
+              const data = response.data;
+              const tempCelsius = Math.round(data.main.temp); // Celsius value
+              const tempFahrenheit = Math.round((tempCelsius * 9) / 5 + 32); // Convert to Fahrenheit
+    
+              // Update the displayed values for both Celsius and Fahrenheit
+              document.querySelector('.selected-city').innerText = data.name;
+              document.querySelector('.temperature').innerText = `${tempCelsius}°C | ${tempFahrenheit}°F`;
+              document.getElementById('condition').innerText = data.weather[0].description.toUpperCase();
+              document.querySelector('.weather-info').innerHTML = `<p>Wind: ${data.wind.speed} mph</p><p>Humidity: ${data.main.humidity}%</p>`;
+            } catch (error) {
+              console.error("Error fetching weather:", error);
+              alert('Unable to fetch location-based weather.');
+            }
+          }, function(error) {
+            alert('Location access denied. Please enable location services.');
+          });
+        } else {
+          alert('Geolocation is not supported by your browser.');
+        }
+      });
+    </script>
+    
+    
+    
+    
+    <style>
+      body {
+        font-family: 'Sono', sans-serif;
+        background: linear-gradient(to right, #6a11cb, #2575fc);
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        flex-direction: column;
+      }
+      .search-bar {
+        width: 50%;
+        margin-bottom: 20px;
+      }
+      .container {
+        width: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        text-align: center;
+      }
+      .selected-city {
+        font-size: 36px;
+        font-weight: bold;
+      }
+      .temperature {
+        font-size: 60px;
+        font-weight: bold;
+      }
+      .weather-info p {
+        font-size: 18px;
+        margin: 5px 0;
+      }
+      .forecast div {
+        padding: 15px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        text-align: center;
+        width: 22%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .card-footer {
+        margin-top: 20px;
+        font-size: 14px;
+      }
+      .card-footer a {
+        color: #ffcc00;
+        text-decoration: none;
+        font-weight: bold;
+      }
+      .card-footer a:hover {
+        text-decoration: underline;
+      }
+    </style>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        async function fetchWeather(city) {
+          try {
+            const apiKey = '2a2eaa51d996796495bf456e5b58adf4'; // Replace with your actual API key
+            console.log(`Fetching weather for: ${city}`);
+      
+            // Disable input while waiting for the API response
+            document.getElementById('search-city').disabled = true;
+      
+            const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${apiKey}`);
+      
+            // Enable input again once the response is received
+            document.getElementById('search-city').disabled = false;
+      
+            if (response.status === 200) { // Check if the status code is OK
+              const data = response.data;
+              console.log("Weather data received:", data);
+      
+              // Get both Celsius and Fahrenheit temperatures
+              const tempCelsius = Math.round(data.main.temp);
+              const tempFahrenheit = Math.round((tempCelsius * 9) / 5 + 32);
+      
+              // Update the UI with the new weather data
+              document.querySelector('.selected-city').innerText = data.name;
+              document.querySelector('.temperature').innerText = `${tempCelsius}°C | ${tempFahrenheit}°F`;
+              document.getElementById('condition').innerText = data.weather[0].description.toUpperCase();
+              document.querySelector('.weather-info').innerHTML = `<p>Wind: ${data.wind.speed} mph</p><p>Humidity: ${data.main.humidity}%</p>`;
+            } else {
+              alert('City not found!');
+            }
+      
+          } catch (error) {
+            console.error("Error fetching weather:", error);
+            alert('City not found!');
+            // Enable input if an error occurs
+            document.getElementById('search-city').disabled = false;
+          }
+        }
+      
+        document.getElementById('search-city').addEventListener('keypress', function(event) {
+          if (event.key === 'Enter') {
+            let city = this.value.trim();
+            if (city) {
+              fetchWeather(city);
+            }
+          }
+        });
+      });
+      
+      
+      
+    </script>
+  </head>
+  <body>
+    <input type="text" class="form-control search-bar" id="search-city" placeholder="Search for a city..." />
+    <div class="container">
+      <h1 class="selected-city">Barcelona</h1>
+      <h4>Sunday, February 9, 2025</h4>
+      <h5>Last Updated: 10:14:13 PM</h5>
+      <div class="temperature">12°C | °F</div>
+      <p id="condition">BROKEN CLOUDS</p>
+      <div class="weather-info">
+        <p>Wind: 6.1 mph</p>
+        <p>Humidity: 90%</p>
+      </div>
+      <div class="forecast">
+        <div>
+          <p>Tue</p>
+          <p>32°C</p>
+          <p>Sunny</p>
+        </div>
+        <div>
+          <p>Wed</p>
+          <p>12°C</p>
+          <p>Rainy</p>
+        </div>
+        <div>
+          <p>Thu</p>
+          <p>13°C</p>
+          <p>Rainy</p>
+        </div>
+        <div>
+          <p>Fri</p>
+          <p>22°C</p>
+          <p>Mist</p>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a href="https://github.com/SomuRohit?tab=repositories" target="_blank">Developed</a> by Somu Rohit :)
+      </div>
+    </div>
+  </body>
+</html>
